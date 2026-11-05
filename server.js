@@ -1,3 +1,4 @@
+
 const express = require("express");
 const cors = require("cors");
 
@@ -16,18 +17,18 @@ app.post("/chat", async (req, res) => {
 
     if (!pergunta) {
       return res.status(400).json({
-        reply: "Não recebi sua pergunta."
+        reply: "Por favor, faça uma pergunta!"
       });
     }
 
     const chave = process.env.GEMINI_API_KEY;
 
     if (!chave) {
-      throw new Error("Chave GEMINI_API_KEY não encontrada.");
+      throw new Error("GEMINI_API_KEY não encontrada no Render.");
     }
 
     const resposta = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent",
       {
         method: "POST",
         headers: {
@@ -37,12 +38,14 @@ app.post("/chat", async (req, res) => {
         body: JSON.stringify({
           systemInstruction: {
             parts: [{
-              text: "Você é a Esfera IA, uma inteligência artificial educativa da Feira de Ciências 2026 da escola EEJMC. Fale sempre em português brasileiro, com simpatia, clareza e respostas objetivas. Ajude crianças e estudantes a aprender ciência."
+              text: "Você é a Esfera IA, uma inteligência artificial educativa da Feira de Ciências 2026 da escola EEJMC. Fale sempre em português brasileiro. Seja simpática, inteligente, criativa e educativa. Responda de maneira clara e objetiva. Ajude crianças e estudantes a aprender ciência."
             }]
           },
           contents: [{
             role: "user",
-            parts: [{ text: pergunta }]
+            parts: [{
+              text: pergunta
+            }]
           }],
           generationConfig: {
             temperature: 0.7,
@@ -55,24 +58,32 @@ app.post("/chat", async (req, res) => {
     const dados = await resposta.json();
 
     if (!resposta.ok) {
-      throw new Error(
-        dados.error?.message || "Erro ao consultar o Gemini."
-      );
+      console.error("Erro Gemini:", dados);
+
+      return res.status(resposta.status).json({
+        reply: "O Gemini está temporariamente indisponível. Tente novamente daqui a pouco."
+      });
     }
 
     const texto = dados.candidates?.[0]?.content?.parts
       ?.map(parte => parte.text || "")
       .join("");
 
+    if (!texto) {
+      throw new Error("O Gemini não retornou uma resposta.");
+    }
+
+    console.log("Resposta do Gemini recebida!");
+
     res.json({
-      reply: texto || "Não consegui gerar uma resposta."
+      reply: texto
     });
 
   } catch (erro) {
-    console.error("Erro:", erro.message);
+    console.error("Erro na Esfera IA:", erro.message);
 
     res.status(500).json({
-      reply: "Tive um probleminha. Tente novamente!"
+      reply: "Tive um probleminha para me conectar. Por favor, tente novamente."
     });
   }
 });
