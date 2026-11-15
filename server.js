@@ -1,96 +1,53 @@
 
-const express = require("express");
-const cors = require("cors");
-const path = require("path");
+<script>
+const falasCoruja = [
+  "Opa! Chegou visita? Podem entrar, mas cuidado com a minha beleza!",
+  "Só para avisar: a criatura mais bonita deste castelo sou eu!",
+  "O mago acha que manda aqui. Que gracinha!",
+  "Alguém trouxe um espelho? Preciso conferir se continuo maravilhosa!",
+  "Ei, visitantes! Olhem para mim também! Não sou decoração!",
+  "Eu sou uma coruja muito inteligente. E modesta também... mais ou menos!",
+  "Psiu! Não contem ao mago, mas eu sou a estrela deste castelo!",
+  "Que lugar maravilhoso! Principalmente porque eu estou nele!"
+];
 
-const app = express();
+let corujaAtiva = false;
+let ultimaFala = -1;
 
-app.use(cors());
-app.use(express.json());
+function falarCoruja() {
+  if (!corujaAtiva || speechSynthesis.speaking) return;
 
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "esfera_ia_completo-3.html"));
-});
+  let indice;
+  do {
+    indice = Math.floor(Math.random() * falasCoruja.length);
+  } while (indice === ultimaFala);
 
-app.post("/chat", async (req, res) => {
-  try {
-    const pergunta = req.body.message;
+  ultimaFala = indice;
 
-    if (!pergunta) {
-      return res.status(400).json({
-        reply: "Por favor, faça uma pergunta!"
-      });
-    }
+  const fala = new SpeechSynthesisUtterance(falasCoruja[indice]);
+  fala.lang = "pt-BR";
+  fala.rate = 1.08;
+  fala.pitch = 1.35;
 
-    const chave = process.env.GEMINI_API_KEY;
+  speechSynthesis.speak(fala);
+}
 
-    if (!chave) {
-      throw new Error("GEMINI_API_KEY não encontrada no Render.");
-    }
+const botaoCoruja = document.createElement("button");
+botaoCoruja.textContent = "🦉 Acordar coruja";
+botaoCoruja.style.cssText =
+  "position:fixed;bottom:18px;right:18px;z-index:99999;padding:12px 16px;border-radius:25px;border:1px solid gold;background:#211708;color:white;font-size:14px;";
 
-    const resposta = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": chave
-        },
-        body: JSON.stringify({
-          systemInstruction: {
-            parts: [{
-              text: "Você é a Esfera IA, uma inteligência artificial educativa da Feira de Ciências 2026 da escola EEJMC. Fale sempre em português brasileiro. Seja simpática, inteligente, criativa e educativa. Responda de maneira clara e objetiva. Ajude crianças e estudantes a aprender ciência."
-            }]
-          },
-          contents: [{
-            role: "user",
-            parts: [{
-              text: pergunta
-            }]
-          }],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 250
-          }
-        })
-      }
-    );
+botaoCoruja.onclick = () => {
+  corujaAtiva = !corujaAtiva;
+  botaoCoruja.textContent = corujaAtiva
+    ? "🦉 Coruja acordada"
+    : "🦉 Acordar coruja";
 
-    const dados = await resposta.json();
+  if (corujaAtiva) falarCoruja();
+  else speechSynthesis.cancel();
+};
 
-    if (!resposta.ok) {
-      console.error("Erro Gemini:", dados);
+document.body.appendChild(botaoCoruja);
 
-      return res.status(resposta.status).json({
-        reply: "O Gemini está temporariamente indisponível. Tente novamente daqui a pouco."
-      });
-    }
-
-    const texto = dados.candidates?.[0]?.content?.parts
-      ?.map(parte => parte.text || "")
-      .join("");
-
-    if (!texto) {
-      throw new Error("O Gemini não retornou uma resposta.");
-    }
-
-    console.log("Resposta do Gemini recebida!");
-
-    res.json({
-      reply: texto
-    });
-
-  } catch (erro) {
-    console.error("Erro na Esfera IA:", erro.message);
-
-    res.status(500).json({
-      reply: "Tive um probleminha para me conectar. Por favor, tente novamente."
-    });
-  }
-});
-
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log("Esfera IA iniciada com Gemini!");
-});
+setInterval(falarCoruja, 30000);
+</script>
