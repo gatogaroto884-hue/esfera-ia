@@ -31,6 +31,14 @@ body{height:100vh;overflow:hidden;font-family:Arial;background:#000;color:white}
 .instrucao{position:relative;z-index:3;margin-top:35px;font-size:12px;letter-spacing:1px;color:#f3e5ff;text-align:center}
 #status{position:relative;z-index:3;margin-top:18px;min-height:20px;max-width:90%;max-height:90px;overflow-y:auto;font-size:13px;color:#f0d9ff;text-align:center;padding:0 15px}
 #botao{position:relative;z-index:4;margin-top:18px}
+#botaoCoruja{
+position:relative;z-index:4;margin-top:12px;
+border:1px solid #e5c77e;border-radius:40px;
+color:#f8e7b6;background:linear-gradient(90deg,#251a0b,#60451b,#251a0b);
+padding:12px 20px;font-weight:bold;letter-spacing:1px;
+box-shadow:0 0 12px rgba(229,199,126,.45);cursor:pointer;
+}
+#botaoCoruja:disabled{opacity:.65}
 .assinatura{position:absolute;bottom:30px;z-index:4;color:#f5dca0;font-size:13px;text-shadow:0 0 12px #d8b86c}
 #particulas{position:absolute;inset:0;overflow:hidden;pointer-events:none}
 .particula{position:absolute;width:3px;height:3px;border-radius:50%;background:#f4dfff;box-shadow:0 0 8px #c16aff;animation:subir 9s linear infinite}
@@ -41,216 +49,962 @@ body{height:100vh;overflow:hidden;font-family:Arial;background:#000;color:white}
 #telaEsfera.feitico{animation:brilhoFeitico .35s ease-in-out}
 @keyframes brilhoFeitico{50%{filter:brightness(1.5)}}
 #cameraGestos{position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;left:-10px;top:-10px}
-@media(max-height:650px){.olho-magico{width:210px}.titulo{top:4%}.instrucao{margin-top:22px}#botao{margin-top:10px}}
+@media(max-height:650px){
+.olho-magico{width:210px}
+.titulo{top:4%}
+.instrucao{margin-top:22px}
+#botao{margin-top:10px}
+#botaoCoruja{margin-top:8px;padding:10px 16px}
+}
 </style>
 </head>
 <body>
+
 <video id="cameraGestos" autoplay muted playsinline></video>
-<audio id="musicaFundo" loop preload="none"><source src="https://raw.githubusercontent.com/gatogaroto884-hue/esfera-ia/main/Dark%20Music%20-%20The%20Sealed%20Kingdom(MP3_160K).mp3" type="audio/mpeg"></audio>
+
+<audio id="musicaFundo" loop preload="none">
+<source src="https://raw.githubusercontent.com/gatogaroto884-hue/esfera-ia/main/Dark%20Music%20-%20The%20Sealed%20Kingdom(MP3_160K).mp3" type="audio/mpeg">
+</audio>
+
 <section id="abertura">
 <video id="videoAnjo" autoplay muted playsinline preload="metadata" src="https://raw.githubusercontent.com/gatogaroto884-hue/esfera-ia/main/VID-20261107-WA0028.mp4"></video>
 <div class="sombraAbertura"></div>
-<div class="conteudoAbertura"><button id="botaoComecar">✧ CLIQUE PARA COMEÇAR SUA EXPERIÊNCIA ✧</button></div>
+<div class="conteudoAbertura">
+<button id="botaoComecar">✧ CLIQUE PARA COMEÇAR SUA EXPERIÊNCIA ✧</button>
+</div>
 <div class="assinaturaAbertura">Feito por Gabriel Silva<br>FEIRA DE CIÊNCIAS 2026 · EEJMC</div>
 </section>
+
 <section id="telaMago">
 <video id="videoMago" class="videoSequencia" playsinline preload="none"></video>
 <div id="transicaoMagica"></div>
 </section>
+
 <main id="telaEsfera">
-<div class="estrelas"></div><div id="particulas"></div>
-<div class="titulo"><h1>ESFERA IA</h1><div class="evento">FEIRA DE CIÊNCIAS 2026 · EEJMC</div></div>
+<div class="estrelas"></div>
+<div id="particulas"></div>
+
+<div class="titulo">
+<h1>ESFERA IA</h1>
+<div class="evento">FEIRA DE CIÊNCIAS 2026 · EEJMC</div>
+</div>
+
 <img src="https://raw.githubusercontent.com/gatogaroto884-hue/esfera-ia/main/Design%20sem%20nome_20261107_184431_0000.png" class="olho-magico" id="esfera" alt="Olho mágico">
+
 <div class="instrucao">TOQUE NO OLHO OU NO BOTÃO PARA CONVERSAR</div>
 <div id="status">Estou esperando você...</div>
+
 <button id="botao">✧ CONVERSAR ✧</button>
+<button id="botaoCoruja">CONVERSAR COM A CORUJA</button>
+
 <div class="assinatura">Feito por Gabriel Silva</div>
 </main>
+
 <script>
 const $=id=>document.getElementById(id);
-const abertura=$("abertura"),videoAnjo=$("videoAnjo"),botaoComecar=$("botaoComecar"),musica=$("musicaFundo"),telaMago=$("telaMago"),videoMago=$("videoMago"),portal=$("transicaoMagica"),telaEsfera=$("telaEsfera"),esfera=$("esfera"),botao=$("botao"),statusTexto=$("status"),cameraGestos=$("cameraGestos");
+
+const abertura=$("abertura"),
+videoAnjo=$("videoAnjo"),
+botaoComecar=$("botaoComecar"),
+musica=$("musicaFundo"),
+telaMago=$("telaMago"),
+videoMago=$("videoMago"),
+portal=$("transicaoMagica"),
+telaEsfera=$("telaEsfera"),
+esfera=$("esfera"),
+botao=$("botao"),
+botaoCoruja=$("botaoCoruja"),
+statusTexto=$("status"),
+cameraGestos=$("cameraGestos");
+
 const ENDERECO_SERVIDOR="https://esfera-iabib.onrender.com/chat";
+const ENDERECO_CORUJA="https://esfera-iabib.onrender.com/coruja";
+
 const videosAbertura=[
 "https://raw.githubusercontent.com/gatogaroto884-hue/esfera-ia/main/VID-20261107-WA0028.mp4",
 "https://raw.githubusercontent.com/gatogaroto884-hue/esfera-ia/main/VID-20261112-WA0002.mp4",
 "https://raw.githubusercontent.com/gatogaroto884-hue/esfera-ia/main/VID-20261112-WA0003.mp4"
 ];
+
 const videoMagoURL="https://raw.githubusercontent.com/gatogaroto884-hue/esfera-ia/main/VID-20261107-WA0026.mp4";
-let indiceAbertura=0,experienciaIniciada=false,ouvindo=false,falando=false,encerrando=false,modoFeitico=false,audioContext=null,reconhecimento=null;
-let cameraAtiva=false,inicializandoCamera=false,streamCamera=null,detectorMaos=null,temporizadorGestos=null,ultimaPosicao=null,ultimoGesto=0,ultimoMovimentoTela=0,notaAtual=0;
-let sonsAmbienteAtivos=false,temporizadoresAmbiente=[],transicaoIniciada=false;
-document.addEventListener("pointerdown",()=>{musica.volume=.22;musica.play().catch(()=>{});},{once:true});
-function prepararAudio(){try{audioContext=audioContext||new(window.AudioContext||window.webkitAudioContext)();if(audioContext.state==="suspended")audioContext.resume()}catch(e){}}
-function notaMagica(frequencia,duracao=.55,volume=.13){
-prepararAudio();if(!audioContext)return;
-const agora=audioContext.currentTime,oscilador=audioContext.createOscillator(),harmonico=audioContext.createOscillator(),ganho=audioContext.createGain(),ganhoH=audioContext.createGain(),filtro=audioContext.createBiquadFilter(),eco=audioContext.createDelay(1),retorno=audioContext.createGain();
-oscilador.type="triangle";oscilador.frequency.setValueAtTime(frequencia,agora);
-harmonico.type="sine";harmonico.frequency.setValueAtTime(frequencia*2.01,agora);
-filtro.type="lowpass";filtro.frequency.value=2600;
-ganho.gain.setValueAtTime(.0001,agora);ganho.gain.exponentialRampToValueAtTime(volume,agora+.025);ganho.gain.exponentialRampToValueAtTime(.0001,agora+duracao);
-ganhoH.gain.setValueAtTime(.0001,agora);ganhoH.gain.exponentialRampToValueAtTime(volume*.22,agora+.025);ganhoH.gain.exponentialRampToValueAtTime(.0001,agora+duracao*.65);
-eco.delayTime.value=.22;retorno.gain.value=.12;
-oscilador.connect(filtro);harmonico.connect(ganhoH);ganhoH.connect(filtro);filtro.connect(ganho);ganho.connect(audioContext.destination);ganho.connect(eco);eco.connect(retorno);retorno.connect(audioContext.destination);
-oscilador.start(agora);harmonico.start(agora);oscilador.stop(agora+duracao);harmonico.stop(agora+duracao*.7);
+
+let indiceAbertura=0,
+experienciaIniciada=false,
+ouvindo=false,
+falando=false,
+encerrando=false,
+modoFeitico=false,
+audioContext=null,
+reconhecimento=null,
+reconhecimentoCoruja=null,
+ouvindoCoruja=false;
+
+let cameraAtiva=false,
+inicializandoCamera=false,
+streamCamera=null,
+detectorMaos=null,
+temporizadorGestos=null,
+ultimaPosicao=null,
+ultimoGesto=0,
+ultimoMovimentoTela=0,
+notaAtual=0;
+
+let sonsAmbienteAtivos=false,
+temporizadoresAmbiente=[],
+transicaoIniciada=false;
+
+document.addEventListener("pointerdown",()=>{
+musica.volume=.22;
+musica.play().catch(()=>{});
+},{once:true});
+
+function prepararAudio(){
+try{
+audioContext=audioContext||new(window.AudioContext||window.webkitAudioContext)();
+if(audioContext.state==="suspended")audioContext.resume();
+}catch(e){}
 }
+  function notaMagica(frequencia,duracao=.55,volume=.13){
+prepararAudio();
+if(!audioContext)return;
+const agora=audioContext.currentTime,
+oscilador=audioContext.createOscillator(),
+harmonico=audioContext.createOscillator(),
+ganho=audioContext.createGain(),
+ganhoH=audioContext.createGain(),
+filtro=audioContext.createBiquadFilter(),
+eco=audioContext.createDelay(1),
+retorno=audioContext.createGain();
+
+oscilador.type="triangle";
+oscilador.frequency.setValueAtTime(frequencia,agora);
+harmonico.type="sine";
+harmonico.frequency.setValueAtTime(frequencia*2.01,agora);
+filtro.type="lowpass";
+filtro.frequency.value=2600;
+
+ganho.gain.setValueAtTime(.0001,agora);
+ganho.gain.exponentialRampToValueAtTime(volume,agora+.025);
+ganho.gain.exponentialRampToValueAtTime(.0001,agora+duracao);
+
+ganhoH.gain.setValueAtTime(.0001,agora);
+ganhoH.gain.exponentialRampToValueAtTime(volume*.22,agora+.025);
+ganhoH.gain.exponentialRampToValueAtTime(.0001,agora+duracao*.65);
+
+eco.delayTime.value=.22;
+retorno.gain.value=.12;
+
+oscilador.connect(filtro);
+harmonico.connect(ganhoH);
+ganhoH.connect(filtro);
+filtro.connect(ganho);
+ganho.connect(audioContext.destination);
+ganho.connect(eco);
+eco.connect(retorno);
+retorno.connect(audioContext.destination);
+
+oscilador.start(agora);
+harmonico.start(agora);
+oscilador.stop(agora+duracao);
+harmonico.stop(agora+duracao*.7);
+}
+
 function somBolha(){
-prepararAudio();if(!audioContext)return;
-const agora=audioContext.currentTime,osc=audioContext.createOscillator(),ganho=audioContext.createGain();
-osc.type="sine";osc.frequency.setValueAtTime(180+Math.random()*100,agora);osc.frequency.exponentialRampToValueAtTime(65,agora+.16);
-ganho.gain.setValueAtTime(.0001,agora);ganho.gain.exponentialRampToValueAtTime(.055,agora+.025);ganho.gain.exponentialRampToValueAtTime(.0001,agora+.18);
-osc.connect(ganho);ganho.connect(audioContext.destination);osc.start(agora);osc.stop(agora+.2);
+prepararAudio();
+if(!audioContext)return;
+const agora=audioContext.currentTime,
+osc=audioContext.createOscillator(),
+ganho=audioContext.createGain();
+
+osc.type="sine";
+osc.frequency.setValueAtTime(180+Math.random()*100,agora);
+osc.frequency.exponentialRampToValueAtTime(65,agora+.16);
+ganho.gain.setValueAtTime(.0001,agora);
+ganho.gain.exponentialRampToValueAtTime(.055,agora+.025);
+ganho.gain.exponentialRampToValueAtTime(.0001,agora+.18);
+
+osc.connect(ganho);
+ganho.connect(audioContext.destination);
+osc.start(agora);
+osc.stop(agora+.2);
 }
+
 function somRuido(duracao=.4,volume=.08,frequencia=900){
-prepararAudio();if(!audioContext)return;
-const agora=audioContext.currentTime,tamanho=Math.floor(audioContext.sampleRate*duracao),buffer=audioContext.createBuffer(1,tamanho,audioContext.sampleRate),dados=buffer.getChannelData(0);
+prepararAudio();
+if(!audioContext)return;
+const agora=audioContext.currentTime,
+tamanho=Math.floor(audioContext.sampleRate*duracao),
+buffer=audioContext.createBuffer(1,tamanho,audioContext.sampleRate),
+dados=buffer.getChannelData(0);
+
 for(let i=0;i<tamanho;i++)dados[i]=(Math.random()*2-1)*(1-i/tamanho);
-const fonte=audioContext.createBufferSource(),filtro=audioContext.createBiquadFilter(),ganho=audioContext.createGain();
-fonte.buffer=buffer;filtro.type="lowpass";filtro.frequency.value=frequencia;ganho.gain.setValueAtTime(volume,agora);ganho.gain.exponentialRampToValueAtTime(.0001,agora+duracao);
-fonte.connect(filtro);filtro.connect(ganho);ganho.connect(audioContext.destination);fonte.start(agora);fonte.stop(agora+duracao);
+
+const fonte=audioContext.createBufferSource(),
+filtro=audioContext.createBiquadFilter(),
+ganho=audioContext.createGain();
+
+fonte.buffer=buffer;
+filtro.type="lowpass";
+filtro.frequency.value=frequencia;
+ganho.gain.setValueAtTime(volume,agora);
+ganho.gain.exponentialRampToValueAtTime(.0001,agora+duracao);
+
+fonte.connect(filtro);
+filtro.connect(ganho);
+ganho.connect(audioContext.destination);
+fonte.start(agora);
+fonte.stop(agora+duracao);
 }
+
 function somExplosao(){
-prepararAudio();if(!audioContext)return;somRuido(.65,.13,650);
-const agora=audioContext.currentTime,osc=audioContext.createOscillator(),ganho=audioContext.createGain();
-osc.type="sine";osc.frequency.setValueAtTime(120,agora);osc.frequency.exponentialRampToValueAtTime(35,agora+.55);
-ganho.gain.setValueAtTime(.0001,agora);ganho.gain.exponentialRampToValueAtTime(.18,agora+.035);ganho.gain.exponentialRampToValueAtTime(.0001,agora+.6);
-osc.connect(ganho);ganho.connect(audioContext.destination);osc.start(agora);osc.stop(agora+.62);
+prepararAudio();
+if(!audioContext)return;
+somRuido(.65,.13,650);
+
+const agora=audioContext.currentTime,
+osc=audioContext.createOscillator(),
+ganho=audioContext.createGain();
+
+osc.type="sine";
+osc.frequency.setValueAtTime(120,agora);
+osc.frequency.exponentialRampToValueAtTime(35,agora+.55);
+ganho.gain.setValueAtTime(.0001,agora);
+ganho.gain.exponentialRampToValueAtTime(.18,agora+.035);
+ganho.gain.exponentialRampToValueAtTime(.0001,agora+.6);
+
+osc.connect(ganho);
+ganho.connect(audioContext.destination);
+osc.start(agora);
+osc.stop(agora+.62);
 }
+
 function somCoruja(){
-prepararAudio();if(!audioContext)return;const agora=audioContext.currentTime;
+prepararAudio();
+if(!audioContext)return;
+const agora=audioContext.currentTime;
+
 [0,.42].forEach((atraso,i)=>{
-const osc=audioContext.createOscillator(),ganho=audioContext.createGain(),filtro=audioContext.createBiquadFilter(),inicio=agora+atraso,frequencia=i===0?480:410;
-osc.type="triangle";osc.frequency.setValueAtTime(frequencia,inicio);osc.frequency.exponentialRampToValueAtTime(frequencia*.58,inicio+.38);
-filtro.type="lowpass";filtro.frequency.value=850;ganho.gain.setValueAtTime(.0001,inicio);ganho.gain.exponentialRampToValueAtTime(.065,inicio+.06);ganho.gain.exponentialRampToValueAtTime(.0001,inicio+.42);
-osc.connect(filtro);filtro.connect(ganho);ganho.connect(audioContext.destination);osc.start(inicio);osc.stop(inicio+.44);
+const osc=audioContext.createOscillator(),
+ganho=audioContext.createGain(),
+filtro=audioContext.createBiquadFilter(),
+inicio=agora+atraso,
+frequencia=i===0?480:410;
+
+osc.type="triangle";
+osc.frequency.setValueAtTime(frequencia,inicio);
+osc.frequency.exponentialRampToValueAtTime(frequencia*.58,inicio+.38);
+filtro.type="lowpass";
+filtro.frequency.value=850;
+ganho.gain.setValueAtTime(.0001,inicio);
+ganho.gain.exponentialRampToValueAtTime(.065,inicio+.06);
+ganho.gain.exponentialRampToValueAtTime(.0001,inicio+.42);
+
+osc.connect(filtro);
+filtro.connect(ganho);
+ganho.connect(audioContext.destination);
+osc.start(inicio);
+osc.stop(inicio+.44);
 });
 }
-function somMagico(){notaMagica(660,.35,.09);setTimeout(()=>notaMagica(880,.5,.08),140);setTimeout(()=>notaMagica(1174,.7,.07),280)}
-function somSuspense(){notaMagica(196,1.1,.055);setTimeout(()=>notaMagica(146,1.3,.045),450)}
+
+function somMagico(){
+notaMagica(660,.35,.09);
+setTimeout(()=>notaMagica(880,.5,.08),140);
+setTimeout(()=>notaMagica(1174,.7,.07),280);
+}
+
+function somSuspense(){
+notaMagica(196,1.1,.055);
+setTimeout(()=>notaMagica(146,1.3,.045),450);
+}
+
 function risadaMalefica(){
-prepararAudio();if(!audioContext)return;const agora=audioContext.currentTime,tempos=[0,.34,.68,1.08,1.48,1.92,2.38],frequencias=[180,165,190,155,175,145,125];
+prepararAudio();
+if(!audioContext)return;
+
+const agora=audioContext.currentTime,
+tempos=[0,.34,.68,1.08,1.48,1.92,2.38],
+frequencias=[180,165,190,155,175,145,125];
+
 tempos.forEach((tempo,i)=>{
-const inicio=agora+tempo,osc=audioContext.createOscillator(),formante=audioContext.createBiquadFilter(),ganho=audioContext.createGain(),vibrato=audioContext.createOscillator(),profundidade=audioContext.createGain();
-osc.type="sawtooth";osc.frequency.setValueAtTime(frequencias[i],inicio);osc.frequency.exponentialRampToValueAtTime(frequencias[i]*.72,inicio+.23);
-formante.type="bandpass";formante.frequency.value=650;formante.Q.value=1.2;vibrato.type="sine";vibrato.frequency.value=7;profundidade.gain.value=8;vibrato.connect(profundidade);profundidade.connect(osc.frequency);
-ganho.gain.setValueAtTime(.0001,inicio);ganho.gain.exponentialRampToValueAtTime(.12,inicio+.035);ganho.gain.exponentialRampToValueAtTime(.0001,inicio+.27);
-osc.connect(formante);formante.connect(ganho);ganho.connect(audioContext.destination);vibrato.start(inicio);osc.start(inicio);osc.stop(inicio+.29);vibrato.stop(inicio+.29);
+const inicio=agora+tempo,
+osc=audioContext.createOscillator(),
+formante=audioContext.createBiquadFilter(),
+ganho=audioContext.createGain(),
+vibrato=audioContext.createOscillator(),
+profundidade=audioContext.createGain();
+
+osc.type="sawtooth";
+osc.frequency.setValueAtTime(frequencias[i],inicio);
+osc.frequency.exponentialRampToValueAtTime(frequencias[i]*.72,inicio+.23);
+formante.type="bandpass";
+formante.frequency.value=650;
+formante.Q.value=1.2;
+vibrato.type="sine";
+vibrato.frequency.value=7;
+profundidade.gain.value=8;
+vibrato.connect(profundidade);
+profundidade.connect(osc.frequency);
+
+ganho.gain.setValueAtTime(.0001,inicio);
+ganho.gain.exponentialRampToValueAtTime(.12,inicio+.035);
+ganho.gain.exponentialRampToValueAtTime(.0001,inicio+.27);
+
+osc.connect(formante);
+formante.connect(ganho);
+ganho.connect(audioContext.destination);
+vibrato.start(inicio);
+osc.start(inicio);
+osc.stop(inicio+.29);
+vibrato.stop(inicio+.29);
 });
 }
-function somSurpresaEntrada(){notaMagica(523,.4,.1);setTimeout(()=>notaMagica(784,.5,.11),130);setTimeout(()=>notaMagica(1046,.7,.1),280)}
+
+function somSurpresaEntrada(){
+notaMagica(523,.4,.1);
+setTimeout(()=>notaMagica(784,.5,.11),130);
+setTimeout(()=>notaMagica(1046,.7,.1),280);
+}
+
 function agendarSom(funcao,minimo,maximo){
-if(!sonsAmbienteAtivos)return;const espera=minimo+Math.random()*(maximo-minimo);
-const id=setTimeout(()=>{if(!sonsAmbienteAtivos)return;funcao();agendarSom(funcao,minimo,maximo)},espera);temporizadoresAmbiente.push(id);
+if(!sonsAmbienteAtivos)return;
+const espera=minimo+Math.random()*(maximo-minimo);
+const id=setTimeout(()=>{
+if(!sonsAmbienteAtivos)return;
+funcao();
+agendarSom(funcao,minimo,maximo);
+},espera);
+temporizadoresAmbiente.push(id);
 }
-function iniciarSonsAmbiente(){pararSonsAmbiente();sonsAmbienteAtivos=true;agendarSom(somBolha,1800,3300);agendarSom(somCoruja,9000,14500);agendarSom(somMagico,5500,8500);agendarSom(somExplosao,11000,17000);agendarSom(somSuspense,8500,13000)}
-function pararSonsAmbiente(){sonsAmbienteAtivos=false;temporizadoresAmbiente.forEach(id=>clearTimeout(id));temporizadoresAmbiente=[]}
-videoAnjo.addEventListener("ended",()=>{if(experienciaIniciada)return;indiceAbertura=(indiceAbertura+1)%videosAbertura.length;videoAnjo.src=videosAbertura[indiceAbertura];videoAnjo.play().catch(()=>{})});
+
+function iniciarSonsAmbiente(){
+pararSonsAmbiente();
+sonsAmbienteAtivos=true;
+agendarSom(somBolha,1800,3300);
+agendarSom(somCoruja,9000,14500);
+agendarSom(somMagico,5500,8500);
+agendarSom(somExplosao,11000,17000);
+agendarSom(somSuspense,8500,13000);
+}
+
+function pararSonsAmbiente(){
+sonsAmbienteAtivos=false;
+temporizadoresAmbiente.forEach(id=>clearTimeout(id));
+temporizadoresAmbiente=[];
+}
+
+videoAnjo.addEventListener("ended",()=>{
+if(experienciaIniciada)return;
+indiceAbertura=(indiceAbertura+1)%videosAbertura.length;
+videoAnjo.src=videosAbertura[indiceAbertura];
+videoAnjo.play().catch(()=>{});
+});
+
 function iniciarExperiencia(){
-if(experienciaIniciada)return;experienciaIniciada=true;botaoComecar.disabled=true;prepararAudio();musica.volume=.22;musica.play().catch(()=>{});
-somSurpresaEntrada();iniciarSonsAmbiente();botaoComecar.textContent="ABRINDO O PORTAL...";videoAnjo.pause();abertura.style.display="none";telaMago.style.display="flex";videoMago.src=videoMagoURL;videoMago.load();
-videoMago.play().catch(()=>{statusTexto.textContent="Toque para tentar iniciar o vídeo."});
+if(experienciaIniciada)return;
+experienciaIniciada=true;
+botaoComecar.disabled=true;
+prepararAudio();
+musica.volume=.22;
+musica.play().catch(()=>{});
+
+somSurpresaEntrada();
+iniciarSonsAmbiente();
+botaoComecar.textContent="ABRINDO O PORTAL...";
+videoAnjo.pause();
+abertura.style.display="none";
+telaMago.style.display="flex";
+videoMago.src=videoMagoURL;
+videoMago.load();
+videoMago.play().catch(()=>{
+statusTexto.textContent="Toque para tentar iniciar o vídeo.";
+});
 }
+
 botaoComecar.addEventListener("click",iniciarExperiencia);
+
 videoMago.addEventListener("ended",()=>{
-if(transicaoIniciada)return;transicaoIniciada=true;videoMago.pause();pararSonsAmbiente();risadaMalefica();
-setTimeout(()=>{portal.classList.remove("ativar");void portal.offsetWidth;portal.classList.add("ativar");somMagico();
-setTimeout(()=>{telaMago.style.display="none";telaEsfera.style.display="flex";statusTexto.textContent="O portal está aberto. Estou esperando você...";somMagico();transicaoIniciada=false},1100);
+if(transicaoIniciada)return;
+transicaoIniciada=true;
+videoMago.pause();
+pararSonsAmbiente();
+risadaMalefica();
+
+setTimeout(()=>{
+portal.classList.remove("ativar");
+void portal.offsetWidth;
+portal.classList.add("ativar");
+somMagico();
+
+setTimeout(()=>{
+telaMago.style.display="none";
+telaEsfera.style.display="flex";
+statusTexto.textContent="O portal está aberto. Estou esperando você...";
+somMagico();
+transicaoIniciada=false;
+},1100);
+
 },3100);
 });
-const particulas=$("particulas");
-for(let i=0;i<18;i++){const p=document.createElement("div");p.className="particula";p.style.left=Math.random()*100+"%";p.style.animationDelay=Math.random()*8+"s";p.style.animationDuration=7+Math.random()*5+"s";particulas.appendChild(p)}
+  const particulas=$("particulas");
+
+for(let i=0;i<18;i++){
+const p=document.createElement("div");
+p.className="particula";
+p.style.left=Math.random()*100+"%";
+p.style.animationDelay=Math.random()*8+"s";
+p.style.animationDuration=7+Math.random()*5+"s";
+particulas.appendChild(p);
+}
+
 function criarExplosao(){
-const r=esfera.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
-for(let i=0;i<10;i++){const p=document.createElement("div");p.className="explosao";p.style.left=x+"px";p.style.top=y+"px";const a=Math.random()*Math.PI*2,d=35+Math.random()*75;p.style.setProperty("--x",Math.cos(a)*d+"px");p.style.setProperty("--y",Math.sin(a)*d+"px");telaEsfera.appendChild(p);setTimeout(()=>p.remove(),700)}
+const r=esfera.getBoundingClientRect(),
+x=r.left+r.width/2,
+y=r.top+r.height/2;
+
+for(let i=0;i<10;i++){
+const p=document.createElement("div");
+p.className="explosao";
+p.style.left=x+"px";
+p.style.top=y+"px";
+const a=Math.random()*Math.PI*2,
+d=35+Math.random()*75;
+
+p.style.setProperty("--x",Math.cos(a)*d+"px");
+p.style.setProperty("--y",Math.sin(a)*d+"px");
+telaEsfera.appendChild(p);
+setTimeout(()=>p.remove(),700);
 }
+}
+
 function ativarFeitico(){
-if(modoFeitico)return;modoFeitico=true;notaAtual=0;musica.pause();statusTexto.textContent="🪄 FEITIÇO SURPRESA! Movimente sua mão diante da tela!";botao.textContent="🪄 MODO FEITIÇO ATIVO";criarExplosao();somMagico();iniciarCameraGestos();
+if(modoFeitico)return;
+modoFeitico=true;
+notaAtual=0;
+musica.pause();
+statusTexto.textContent="FEITIÇO SURPRESA! Movimente sua mão diante da tela!";
+botao.textContent="MODO FEITIÇO ATIVO";
+criarExplosao();
+somMagico();
+iniciarCameraGestos();
 }
+
 function tocarNotaDaMao(){
-if(!modoFeitico||!telaEsfera.offsetWidth)return;const agora=Date.now();if(agora-ultimoMovimentoTela<250)return;ultimoMovimentoTela=agora;
-const escala=[523.25,587.33,659.25,783.99,880,1046.5,880,783.99,659.25,587.33],frequencia=escala[notaAtual%escala.length];notaAtual++;
-notaMagica(frequencia,.55,.15);if(notaAtual%4===0)somBolha();telaEsfera.classList.remove("feitico");void telaEsfera.offsetWidth;telaEsfera.classList.add("feitico");criarExplosao();statusTexto.textContent="✨ A magia está acontecendo...";
+if(!modoFeitico||!telaEsfera.offsetWidth)return;
+
+const agora=Date.now();
+if(agora-ultimoMovimentoTela<250)return;
+ultimoMovimentoTela=agora;
+
+const escala=[523.25,587.33,659.25,783.99,880,1046.5,880,783.99,659.25,587.33],
+frequencia=escala[notaAtual%escala.length];
+
+notaAtual++;
+notaMagica(frequencia,.55,.15);
+
+if(notaAtual%4===0)somBolha();
+
+telaEsfera.classList.remove("feitico");
+void telaEsfera.offsetWidth;
+telaEsfera.classList.add("feitico");
+criarExplosao();
+statusTexto.textContent="A magia está acontecendo...";
 }
+
 async function iniciarCameraGestos(){
-if(cameraAtiva||inicializandoCamera)return;inicializandoCamera=true;statusTexto.textContent="Preparando o reconhecimento mágico...";
+if(cameraAtiva||inicializandoCamera)return;
+inicializandoCamera=true;
+statusTexto.textContent="Preparando o reconhecimento mágico...";
+
 try{
-if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error("Câmera indisponível. Use o Chrome com HTTPS.");
-const vision=await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/+esm");
-const arquivos=await vision.FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
-const opcoes={baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",delegate:"CPU"},runningMode:"VIDEO",numHands:1,minHandDetectionConfidence:.55,minHandPresenceConfidence:.55,minTrackingConfidence:.55};
-detectorMaos=await vision.HandLandmarker.createFromOptions(arquivos,opcoes);
-streamCamera=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:"user",width:{ideal:320},height:{ideal:240},frameRate:{ideal:15,max:15}}});
-cameraGestos.srcObject=streamCamera;await cameraGestos.play();cameraAtiva=true;inicializandoCamera=false;ultimaPosicao=null;statusTexto.textContent="✨ Pronto! Movimente sua mão para tocar as notas mágicas.";detectarMovimentos();
-}catch(e){console.error("Erro ao iniciar câmera:",e);inicializandoCamera=false;cameraAtiva=false;pararCameraGestos();statusTexto.textContent="Não consegui iniciar a câmera. Verifique a permissão do Chrome.";botao.textContent="✧ CONVERSAR ✧";modoFeitico=false;musica.play().catch(()=>{})}
+if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+throw new Error("Câmera indisponível. Use o Chrome com HTTPS.");
 }
+
+const vision=await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/+esm");
+
+const arquivos=await vision.FilesetResolver.forVisionTasks(
+"https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+);
+
+const opcoes={
+baseOptions:{
+modelAssetPath:"https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
+delegate:"CPU"
+},
+runningMode:"VIDEO",
+numHands:1,
+minHandDetectionConfidence:.55,
+minHandPresenceConfidence:.55,
+minTrackingConfidence:.55
+};
+
+detectorMaos=await vision.HandLandmarker.createFromOptions(arquivos,opcoes);
+
+streamCamera=await navigator.mediaDevices.getUserMedia({
+audio:false,
+video:{
+facingMode:"user",
+width:{ideal:320},
+height:{ideal:240},
+frameRate:{ideal:15,max:15}
+}
+});
+
+cameraGestos.srcObject=streamCamera;
+await cameraGestos.play();
+
+cameraAtiva=true;
+inicializandoCamera=false;
+ultimaPosicao=null;
+
+statusTexto.textContent="Pronto! Movimente sua mão para tocar as notas mágicas.";
+detectarMovimentos();
+
+}catch(e){
+console.error("Erro ao iniciar câmera:",e);
+inicializandoCamera=false;
+cameraAtiva=false;
+pararCameraGestos();
+
+statusTexto.textContent="Não consegui iniciar a câmera. Verifique a permissão do Chrome.";
+botao.textContent="✧ CONVERSAR ✧";
+modoFeitico=false;
+musica.play().catch(()=>{});
+}
+}
+
 function detectarMovimentos(){
 if(!cameraAtiva||!modoFeitico)return;
+
 if(cameraGestos.readyState>=2&&detectorMaos){
 try{
 const resultado=detectorMaos.detectForVideo(cameraGestos,performance.now());
+
 if(resultado.landmarks&&resultado.landmarks.length>0){
-const mao=resultado.landmarks[0],x=mao[9].x,y=mao[9].y;
-if(ultimaPosicao){const dx=x-ultimaPosicao.x,dy=y-ultimaPosicao.y,distancia=Math.sqrt(dx*dx+dy*dy),agora=Date.now();if(distancia>.035&&agora-ultimoGesto>250){ultimoGesto=agora;tocarNotaDaMao()}}
-ultimaPosicao={x,y};
-}else ultimaPosicao=null;
-}catch(e){console.log("Erro no reconhecimento:",e)}
+const mao=resultado.landmarks[0],
+x=mao[9].x,
+y=mao[9].y;
+
+if(ultimaPosicao){
+const dx=x-ultimaPosicao.x,
+dy=y-ultimaPosicao.y,
+distancia=Math.sqrt(dx*dx+dy*dy),
+agora=Date.now();
+
+if(distancia>.035&&agora-ultimoGesto>250){
+ultimoGesto=agora;
+tocarNotaDaMao();
 }
+}
+
+ultimaPosicao={x,y};
+}else{
+ultimaPosicao=null;
+}
+
+}catch(e){
+console.log("Erro no reconhecimento:",e);
+}
+}
+
 temporizadorGestos=setTimeout(detectarMovimentos,100);
 }
+
 function pararCameraGestos(){
-cameraAtiva=false;inicializandoCamera=false;if(temporizadorGestos){clearTimeout(temporizadorGestos);temporizadorGestos=null}
-if(streamCamera){streamCamera.getTracks().forEach(track=>track.stop());streamCamera=null}
-cameraGestos.pause();cameraGestos.srcObject=null;if(detectorMaos){detectorMaos.close();detectorMaos=null}ultimaPosicao=null;
+cameraAtiva=false;
+inicializandoCamera=false;
+
+if(temporizadorGestos){
+clearTimeout(temporizadorGestos);
+temporizadorGestos=null;
 }
-const Reconhecimento=window.SpeechRecognition||window.webkitSpeechRecognition;
+
+if(streamCamera){
+streamCamera.getTracks().forEach(track=>track.stop());
+streamCamera=null;
+}
+
+cameraGestos.pause();
+cameraGestos.srcObject=null;
+
+if(detectorMaos){
+detectorMaos.close();
+detectorMaos=null;
+}
+
+ultimaPosicao=null;
+}
+  const Reconhecimento=window.SpeechRecognition||window.webkitSpeechRecognition;
+
 if(Reconhecimento){
-reconhecimento=new Reconhecimento();reconhecimento.lang="pt-BR";reconhecimento.continuous=false;reconhecimento.interimResults=false;
-reconhecimento.onstart=()=>{ouvindo=true;esfera.classList.add("ouvindo");botao.textContent="🎙 ESTOU OUVINDO...";statusTexto.textContent="Pode falar comigo..."};
-reconhecimento.onend=()=>{ouvindo=false;esfera.classList.remove("ouvindo");if(!encerrando&&!falando&&!modoFeitico)botao.textContent="✧ CONVERSAR ✧"};
-reconhecimento.onerror=e=>{ouvindo=false;esfera.classList.remove("ouvindo");statusTexto.textContent="Não consegui ouvir. Toque para tentar novamente.";botao.textContent="✧ CONVERSAR ✧";console.log(e.error)};
+
+reconhecimento=new Reconhecimento();
+reconhecimento.lang="pt-BR";
+reconhecimento.continuous=false;
+reconhecimento.interimResults=false;
+
+reconhecimento.onstart=()=>{
+ouvindo=true;
+esfera.classList.add("ouvindo");
+botao.textContent="ESTOU OUVINDO...";
+statusTexto.textContent="Pode falar comigo...";
+};
+
+reconhecimento.onend=()=>{
+ouvindo=false;
+esfera.classList.remove("ouvindo");
+
+if(!encerrando&&!falando&&!modoFeitico){
+botao.textContent="✧ CONVERSAR ✧";
+}
+};
+
+reconhecimento.onerror=e=>{
+ouvindo=false;
+esfera.classList.remove("ouvindo");
+statusTexto.textContent="Não consegui ouvir. Toque para tentar novamente.";
+botao.textContent="✧ CONVERSAR ✧";
+console.log(e.error);
+};
+
 reconhecimento.onresult=async e=>{
-const pergunta=e.results[0][0].transcript.trim();statusTexto.textContent="Você disse: "+pergunta;
-const comando=pergunta.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
-if(comando.includes("fechar ia")||comando.includes("fechar esfera")||comando.includes("encerrar ia")||comando.includes("encerrar experiencia")){despedirEReiniciar();return}
-if(comando.includes("feitico surpresa")||comando.includes("som som")){ativarFeitico();return}
+const pergunta=e.results[0][0].transcript.trim();
+statusTexto.textContent="Você disse: "+pergunta;
+
+const comando=pergunta.normalize("NFD")
+.replace(/[\u0300-\u036f]/g,"")
+.toLowerCase();
+
+if(
+comando.includes("fechar ia")||
+comando.includes("fechar esfera")||
+comando.includes("encerrar ia")||
+comando.includes("encerrar experiencia")
+){
+despedirEReiniciar();
+return;
+}
+
+if(comando.includes("feitico surpresa")||comando.includes("som som")){
+ativarFeitico();
+return;
+}
+
 await conversarComIA(pergunta);
 };
+
 }
+
 async function conversarComIA(pergunta){
-statusTexto.textContent="A Esfera está pensando...";botao.textContent="✧ PENSANDO ✧";criarExplosao();notaMagica(520,.2,.07);
+
+statusTexto.textContent="A Esfera está pensando...";
+botao.textContent="✧ PENSANDO ✧";
+criarExplosao();
+notaMagica(520,.2,.07);
+
 try{
-const resposta=await fetch(ENDERECO_SERVIDOR,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:pergunta})});
+
+const resposta=await fetch(ENDERECO_SERVIDOR,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({message:pergunta})
+});
+
 if(!resposta.ok)throw new Error("Erro "+resposta.status);
-const dados=await resposta.json(),texto=dados.reply||dados.resposta||dados.response||"Não consegui encontrar uma resposta agora.";
-statusTexto.textContent=texto;falar(texto);
-}catch(e){console.error(e);statusTexto.textContent="Tive um probleminha para conectar. Tente novamente.";botao.textContent="✧ CONVERSAR ✧"}
+
+const dados=await resposta.json();
+
+const texto=dados.reply||dados.resposta||dados.response||
+"Não consegui encontrar uma resposta agora.";
+
+statusTexto.textContent=texto;
+falar(texto);
+
+}catch(e){
+
+console.error(e);
+statusTexto.textContent="Tive um probleminha para conectar. Tente novamente.";
+botao.textContent="✧ CONVERSAR ✧";
+
 }
+
+}
+
 function falar(texto){
-if(!("speechSynthesis" in window))return;speechSynthesis.cancel();speechSynthesis.resume();
-const limpo=texto.replace(/[\p{Extended_Pictographic}\p{Emoji_Component}]/gu,"").replace(/\s+/g," ").trim();if(!limpo)return;
-const fala=new SpeechSynthesisUtterance(limpo);fala.lang="pt-BR";fala.rate=.95;fala.pitch=1.08;fala.volume=1;
-const voz=speechSynthesis.getVoices().find(v=>v.lang.toLowerCase().includes("pt-br"));if(voz)fala.voice=voz;
-falando=true;botao.textContent="✧ ESFERA RESPONDENDO ✧";
-fala.onend=()=>{falando=false;if(!modoFeitico)botao.textContent="✧ CONVERSAR ✧"};
-fala.onerror=()=>{falando=false;botao.textContent="✧ CONVERSAR ✧"};speechSynthesis.speak(fala);
+
+if(!("speechSynthesis" in window))return;
+
+speechSynthesis.cancel();
+speechSynthesis.resume();
+
+const limpo=texto
+.replace(/[\p{Extended_Pictographic}\p{Emoji_Component}]/gu,"")
+.replace(/\s+/g," ").trim();
+
+if(!limpo)return;
+
+const fala=new SpeechSynthesisUtterance(limpo);
+
+fala.lang="pt-BR";
+fala.rate=.95;
+fala.pitch=1.08;
+fala.volume=1;
+
+const voz=speechSynthesis.getVoices()
+.find(v=>v.lang.toLowerCase().includes("pt-br"));
+
+if(voz)fala.voice=voz;
+
+falando=true;
+botao.textContent="✧ ESFERA RESPONDENDO ✧";
+
+fala.onend=()=>{
+falando=false;
+if(!modoFeitico)botao.textContent="✧ CONVERSAR ✧";
+};
+
+fala.onerror=()=>{
+falando=false;
+botao.textContent="✧ CONVERSAR ✧";
+};
+
+speechSynthesis.speak(fala);
+
 }
+
 function iniciarEscuta(){
-if(!reconhecimento){statusTexto.textContent="Seu navegador não oferece reconhecimento de voz. Experimente o Chrome.";return}
-if(ouvindo||falando||encerrando||modoFeitico)return;if("speechSynthesis" in window)speechSynthesis.cancel();
-try{reconhecimento.start()}catch(e){console.log(e)}
+
+if(!reconhecimento){
+statusTexto.textContent="Seu navegador não oferece reconhecimento de voz. Experimente o Chrome.";
+return;
 }
-botao.addEventListener("click",iniciarEscuta);esfera.addEventListener("click",iniciarEscuta);
-function despedirEReiniciar(){
-if(encerrando)return;encerrando=true;
-if(reconhecimento&&ouvindo)reconhecimento.stop();if("speechSynthesis" in window)speechSynthesis.cancel();
-pararCameraGestos();pararSonsAmbiente();modoFeitico=false;falando=false;ouvindo=false;esfera.classList.remove("ouvindo");telaEsfera.classList.remove("feitico");
-statusTexto.textContent="Obrigado por viver essa experiência mágica!";botao.textContent="ATÉ A PRÓXIMA!";
+
+if(ouvindo||falando||encerrando||modoFeitico||ouvindoCoruja)return;
+
+if("speechSynthesis" in window)speechSynthesis.cancel();
+
+try{
+reconhecimento.start();
+}catch(e){
+console.log(e);
+}
+
+}
+
+/* CONVERSA COM A CORUJA */
+
+let corujaProcessando=false;
+
+if(Reconhecimento){
+
+reconhecimentoCoruja=new Reconhecimento();
+reconhecimentoCoruja.lang="pt-BR";
+reconhecimentoCoruja.continuous=false;
+reconhecimentoCoruja.interimResults=false;
+
+reconhecimentoCoruja.onstart=()=>{
+ouvindoCoruja=true;
+botaoCoruja.textContent="ESTOU OUVINDO...";
+statusTexto.textContent="A coruja está ouvindo você...";
+};
+
+reconhecimentoCoruja.onresult=async evento=>{
+
+const pergunta=evento.results[0][0].transcript.trim();
+
+ouvindoCoruja=false;
+corujaProcessando=true;
+
+botaoCoruja.textContent="A CORUJA ESTÁ PENSANDO...";
+statusTexto.textContent="A coruja está preparando uma resposta...";
+
+try{
+
+const resposta=await fetch(ENDERECO_CORUJA,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({pergunta})
+});
+
+if(!resposta.ok)throw new Error("Erro "+resposta.status);
+
+const dados=await resposta.json();
+
+const texto=dados.resposta||dados.reply||dados.response||
+"Acho que minhas ideias deram uma pequena pausa. Tente novamente.";
+
+statusTexto.textContent=texto;
+
+falarCoruja(texto);
+
+}catch(erro){
+
+console.error("Erro na conversa com a coruja:",erro);
+
+statusTexto.textContent="Não consegui conversar agora. Tente novamente.";
+botaoCoruja.textContent="CONVERSAR COM A CORUJA";
+corujaProcessando=false;
+
+}
+
+};
+
+reconhecimentoCoruja.onerror=erro=>{
+console.log("Erro no microfone da coruja:",erro.error);
+ouvindoCoruja=false;
+corujaProcessando=false;
+botaoCoruja.textContent="CONVERSAR COM A CORUJA";
+statusTexto.textContent="Não consegui ouvir. Tente novamente.";
+};
+
+reconhecimentoCoruja.onend=()=>{
+ouvindoCoruja=false;
+
+if(!corujaProcessando){
+botaoCoruja.textContent="CONVERSAR COM A CORUJA";
+}
+};
+
+}
+
+function falarCoruja(texto){
+
+if(!("speechSynthesis" in window)){
+corujaProcessando=false;
+return;
+}
+
+speechSynthesis.cancel();
+
+const fala=new SpeechSynthesisUtterance(
+texto.replace(/[\p{Extended_Pictographic}\p{Emoji_Component}]/gu,"")
+);
+
+fala.lang="pt-BR";
+fala.rate=1;
+fala.pitch=1.05;
+fala.volume=1;
+
+const voz=speechSynthesis.getVoices()
+.find(v=>v.lang.toLowerCase().includes("pt-br"));
+
+if(voz)fala.voice=voz;
+
+falando=true;
+botaoCoruja.textContent="A CORUJA ESTÁ FALANDO...";
+
+fala.onend=()=>{
+falando=false;
+corujaProcessando=false;
+botaoCoruja.textContent="CONVERSAR COM A CORUJA";
+};
+
+fala.onerror=()=>{
+falando=false;
+corujaProcessando=false;
+botaoCoruja.textContent="CONVERSAR COM A CORUJA";
+};
+
+speechSynthesis.speak(fala);
+
+}
+
+function iniciarEscutaCoruja(){
+
+if(!reconhecimentoCoruja){
+statusTexto.textContent="Este navegador não oferece reconhecimento de voz.";
+return;
+}
+
+if(ouvindo||falando||ouvindoCoruja||corujaProcessando||encerrando||modoFeitico)return;
+
+try{
+reconhecimentoCoruja.start();
+}catch(e){
+console.log(e);
+}
+
+}
+
+botao.addEventListener("click",iniciarEscuta);
+esfera.addEventListener("click",iniciarEscuta);
+botaoCoruja.addEventListener("click",iniciarEscutaCoruja);
+  function despedirEReiniciar(){
+
+if(encerrando)return;
+encerrando=true;
+
+statusTexto.textContent="Até logo! Que a magia continue...";
+
+try{
+if(reconhecimento)reconhecimento.abort();
+if(reconhecimentoCoruja)reconhecimentoCoruja.abort();
+}catch(e){}
+
+ouvindo=false;
+falando=false;
+ouvindoCoruja=false;
+corujaProcessando=false;
+
+if("speechSynthesis" in window){
+speechSynthesis.cancel();
+}
+
+pararCameraGestos();
+pararSonsAmbiente();
+
+if(detectorMaos){
+detectorMaos.close();
+detectorMaos=null;
+}
+
+modoFeitico=false;
+musica.pause();
+
+videoMago.pause();
+videoMago.removeAttribute("src");
+videoMago.load();
+
+telaEsfera.style.display="none";
+telaMago.style.display="none";
+
+portal.classList.remove("ativar");
+
+botao.textContent="✧ CONVERSAR ✧";
+botaoCoruja.textContent="CONVERSAR COM A CORUJA";
+botaoComecar.textContent="✧ CLIQUE PARA COMEÇAR SUA EXPERIÊNCIA ✧";
+botaoComecar.disabled=false;
+
+esfera.classList.remove("ouvindo");
+telaEsfera.classList.remove("feitico");
+
+abertura.style.display="flex";
+
+indiceAbertura=0;
+videoAnjo.src=videosAbertura[0];
+videoAnjo.currentTime=0;
+videoAnjo.play().catch(()=>{});
+
+experienciaIniciada=false;
+transicaoIniciada=false;
+
 setTimeout(()=>{
-telaEsfera.style.display="none";telaMago.style.display="none";videoMago.pause();videoMago.removeAttribute("src");videoMago.load();
-abertura.style.display="flex";indiceAbertura=0;videoAnjo.src=videosAbertura[0];videoAnjo.play().catch(()=>{});
-botaoComecar.disabled=false;botaoComecar.textContent="✧ CLIQUE PARA COMEÇAR SUA EXPERIÊNCIA ✧";
-experienciaIniciada=false;transicaoIniciada=false;encerrando=false;musica.play().catch(()=>{});
-},2500);
+encerrando=false;
+statusTexto.textContent="Estou esperando você...";
+},1000);
+
 }
+
+window.addEventListener("pagehide",()=>{
+pararCameraGestos();
+pararSonsAmbiente();
+
+if("speechSynthesis" in window){
+speechSynthesis.cancel();
+}
+});
+
 </script>
 </body>
 </html>
