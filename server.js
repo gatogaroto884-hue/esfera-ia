@@ -2,6 +2,7 @@
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const fs = require("fs");
 
 const app = express();
 
@@ -10,9 +11,21 @@ app.use(express.json());
 
 // Página principal da Esfera IA
 app.get("/", (req, res) => {
-  res.sendFile(
-    path.join(__dirname, "sintonia_ia_completo-3.html")
+  const arquivoHTML = path.join(
+    process.cwd(),
+    "sintonia_ia_completo-3.html"
   );
+
+  if (!fs.existsSync(arquivoHTML)) {
+    console.error("HTML não encontrado:", arquivoHTML);
+    console.error("Arquivos disponíveis:", fs.readdirSync(process.cwd()));
+
+    return res.status(404).send(
+      "Arquivo HTML não encontrado. Verifique o nome no GitHub."
+    );
+  }
+
+  res.sendFile(arquivoHTML);
 });
 
 // Função de conexão com Gemini
@@ -123,4 +136,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("Esfera IA iniciada com Gemini!");
 });
-
