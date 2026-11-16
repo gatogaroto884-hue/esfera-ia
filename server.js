@@ -13,7 +13,7 @@ app.use(express.json());
 app.get("/", (req, res) => {
   const arquivoHTML = path.join(
     process.cwd(),
-    "sintonia_ia_completo-3.html"
+    "esfera_ia_completo-3.html"
   );
 
   if (!fs.existsSync(arquivoHTML)) {
