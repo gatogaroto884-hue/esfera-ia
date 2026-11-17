@@ -559,29 +559,53 @@ statusTexto.textContent="Toque para tentar iniciar o vídeo.";
 
 botaoComecar.addEventListener("click",iniciarExperiencia);
 
-videoMago.addEventListener("ended",()=>{
-if(transicaoIniciada)return;
+videoMago.addEventListener("ended", async () => {
+    if (transicaoIniciada) return;
 
-transicaoIniciada=true;
-videoMago.pause();
-pararSonsAmbiente();
-risadaMalefica();
+    transicaoIniciada = true;
 
-setTimeout(()=>{
-portal.classList.remove("ativar");
-void portal.offsetWidth;
-portal.classList.add("ativar");
-somMagico();
+    try {
+        videoMago.pause();
 
-setTimeout(()=>{
-telaMago.style.display="none";
-telaEsfera.style.display="flex";
-statusTexto.textContent="O portal está aberto. Estou esperando você...";
-somMagico();
-transicaoIniciada=false;
-},1100);
+        if (typeof pararSonsAmbiente === "function") {
+            pararSonsAmbiente();
+        }
 
-},3100);
+        if (typeof risadaMalefica === "function") {
+            risadaMalefica();
+        }
+
+        if (portal) {
+            portal.classList.remove("ativar");
+            void portal.offsetWidth;
+            portal.classList.add("ativar");
+        }
+
+        if (typeof somMagico === "function") {
+            somMagico();
+        }
+
+        setTimeout(() => {
+            if (telaMago) telaMago.style.display = "none";
+            if (telaEsfera) telaEsfera.style.display = "flex";
+
+            if (statusTexto) {
+                statusTexto.textContent =
+                    "O portal está aberto. Estou esperando você...";
+            }
+
+            if (typeof somMagico === "function") {
+                somMagico();
+            }
+
+            transicaoIniciada = false;
+
+        }, 1100);
+
+    } catch (erro) {
+        console.error("Erro na transição:", erro);
+        transicaoIniciada = false;
+    }
 });
   // ===============================
 // PARTÍCULAS E EFEITOS MÁGICOS
